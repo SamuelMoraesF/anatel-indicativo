@@ -155,7 +155,14 @@ export default function Home() {
                 <article className="card" key={`${row[5]}-${i}`}>
                   <div className="call">{row[5]}</div>
                   <div className="details">
-                    <strong className="radioName">{row[2]}</strong>
+                    <div className="nameLine">
+                      <strong className="radioName">{row[2]}</strong>
+                      {row[6] && (
+                        <span className={`classBadge class${row[6].replace('Classe ', '')}`}>
+                          {row[6]}
+                        </span>
+                      )}
+                    </div>
                     <span>
                       {row[4]} · {row[0]}
                     </span>

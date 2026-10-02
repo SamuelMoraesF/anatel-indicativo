@@ -1,4 +1,4 @@
-const CACHE_NAME = 'indicativos-runtime-v1';
+const CACHE_NAME = 'indicativos-runtime-v2';
 const DATA_URL = '/data/indicativos.pb.gz';
 const VERSION_URL = '/version.json';
 
