@@ -87,15 +87,11 @@ export default function Home() {
   const results = useMemo(() => {
     const q = query.trim().toLocaleUpperCase();
     if (!q) return [];
+    const exactMatches = records.filter((row) => row[5]?.toLocaleUpperCase() === q);
+    if (exactMatches.length) return exactMatches;
     return records
-      .filter((row) => row[5]?.toLocaleUpperCase().includes(q))
-      .sort((a, b) => {
-        const aCall = a[5].toLocaleUpperCase();
-        const bCall = b[5].toLocaleUpperCase();
-        const aExact = aCall === q ? 0 : 1;
-        const bExact = bCall === q ? 0 : 1;
-        return aExact - bExact || aCall.localeCompare(bCall, 'pt-BR');
-      })
+      .filter((row) => row[5]?.toLocaleUpperCase().startsWith(q))
+      .sort((a, b) => a[5].localeCompare(b[5], 'pt-BR'))
       .slice(0, 80);
   }, [query, records]);
   return (
