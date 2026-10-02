@@ -24,6 +24,9 @@
   cursor: pointer;
   box-shadow: 0 8px 30px #0008;
 }
+.radioName {
+  text-transform: uppercase;
+}
 .updateNotice:hover {
   background: #173337;
 }

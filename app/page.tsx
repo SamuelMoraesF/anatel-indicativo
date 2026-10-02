@@ -141,7 +141,7 @@ export default function Home() {
                 <article className="card" key={`${row[5]}-${i}`}>
                   <div className="call">{row[5]}</div>
                   <div className="details">
-                    <strong>{row[2]}</strong>
+                    <strong className="radioName">{row[2]}</strong>
                     <span>
                       {row[4]} · {row[0]}
                     </span>
