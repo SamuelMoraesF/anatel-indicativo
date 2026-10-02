@@ -1,27 +1,48 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import protobuf from 'protobufjs';
 
-type RecordRow = string[];
-const fields = [
-  'Tipo de Identificação',
-  'CNPJ ou CPF',
-  'Nome da Entidade',
-  'Fistel do Serviço da Estação',
-  'Serviço',
-  'Indicativo',
-];
+type RecordRow = [string, string, string, string, string, string];
+const Indicativos = protobuf.Root.fromJSON({
+  nested: {
+    Indicativos: { fields: { records: { rule: 'repeated', type: 'Registro', id: 1 } } },
+    Registro: {
+      fields: {
+        tipoIdentificacao: { type: 'string', id: 1 },
+        cnpjOuCpf: { type: 'string', id: 2 },
+        nomeEntidade: { type: 'string', id: 3 },
+        fistel: { type: 'string', id: 4 },
+        servico: { type: 'string', id: 5 },
+        indicativo: { type: 'string', id: 6 },
+      },
+    },
+  },
+}).lookupType('Indicativos');
 
 export default function Home() {
   const [records, setRecords] = useState<RecordRow[]>([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    fetch('/data/indicativos.json.gz')
+    fetch('/data/indicativos.pb.gz')
       .then(async (r) => {
         const stream = r.body?.pipeThrough(new DecompressionStream('gzip'));
-        const text = await new Response(stream ?? r.body).text();
-        const p = JSON.parse(text);
-        setRecords(p.r.map((row: number[]) => row.map((i) => p.d[i])));
+        return new Response(stream ?? r.body).arrayBuffer();
+      })
+      .then((buffer) => {
+        const decoded = Indicativos.decode(new Uint8Array(buffer)) as protobuf.Message & {
+          records: Array<Record<string, string>>;
+        };
+        setRecords(
+          decoded.records.map((row) => [
+            row.tipoIdentificacao,
+            row.cnpjOuCpf,
+            row.nomeEntidade,
+            row.fistel,
+            row.servico,
+            row.indicativo,
+          ]),
+        );
       })
       .finally(() => setLoading(false));
   }, []);

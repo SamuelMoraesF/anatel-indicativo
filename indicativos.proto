@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+message Indicativos {
+  repeated Registro records = 1;
+}
+
+message Registro {
+  string tipo_identificacao = 1;
+  string cnpj_ou_cpf = 2;
+  string nome_entidade = 3;
+  string fistel = 4;
+  string servico = 5;
+  string indicativo = 6;
+}
