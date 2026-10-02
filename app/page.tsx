@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import protobuf from 'protobufjs';
 
 type RecordRow = [string, string, string, string, string, string];
+type VersionState = { current: string; available: string | null };
 const Indicativos = protobuf.Root.fromJSON({
   nested: {
     Indicativos: { fields: { records: { rule: 'repeated', type: 'Registro', id: 1 } } },
@@ -23,7 +24,25 @@ export default function Home() {
   const [records, setRecords] = useState<RecordRow[]>([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [version, setVersion] = useState<VersionState>({ current: '', available: null });
   useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
+    }
+    fetch('/version.json', { cache: 'no-store' })
+      .then((response) => response.json())
+      .then(({ version: current }) => setVersion({ current, available: null }));
+    const timer = window.setInterval(() => {
+      fetch('/version.json', { cache: 'no-store' })
+        .then((response) => response.json())
+        .then(({ version: available }) =>
+          setVersion((state) => ({
+            ...state,
+            available: state.current && state.current !== available ? available : null,
+          })),
+        )
+        .catch(() => undefined);
+    }, 60_000);
     fetch('/data/indicativos.pb.gz')
       .then(async (r) => {
         const stream = r.body?.pipeThrough(new DecompressionStream('gzip'));
@@ -45,6 +64,7 @@ export default function Home() {
         );
       })
       .finally(() => setLoading(false));
+    return () => window.clearInterval(timer);
   }, []);
   const results = useMemo(() => {
     const q = query.trim().toLocaleUpperCase();
@@ -62,6 +82,11 @@ export default function Home() {
   }, [query, records]);
   return (
     <main>
+      {version.available && (
+        <button className="updateNotice" onClick={() => window.location.reload()}>
+          Nova versão disponível · atualizar agora ↗
+        </button>
+      )}
       <div className="orb orbA" />
       <div className="orb orbB" />
       <section className="shell">

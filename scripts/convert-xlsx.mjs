@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import protobuf from 'protobufjs';
@@ -27,6 +28,8 @@ const binary = Indicativos.encode(Indicativos.create({ records })).finish();
 const compressed = zlib.gzipSync(binary, { level: 9 });
 fs.writeFileSync(path.join(root, 'public/data/indicativos.pb'), binary);
 fs.writeFileSync(path.join(root, 'public/data/indicativos.pb.gz'), compressed);
+const version = crypto.createHash('sha256').update(binary).digest('hex').slice(0, 12);
+fs.writeFileSync(path.join(root, 'public/version.json'), `${JSON.stringify({ version })}\n`);
 console.log(`Protobuf: ${(binary.length / 1024).toFixed(1)} KB`);
 console.log(
   `Protobuf gzip: ${(compressed.length / 1024).toFixed(1)} KB (${records.length} registros)`,
