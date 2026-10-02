@@ -11,4 +11,17 @@ message Registro {
   string fistel = 4;
   string servico = 5;
   string indicativo = 6;
+  string coer = 7;
+  string uf_entidade = 8;
+  string numero_estacao = 9;
+  string nome_estacao = 10;
+  string tipo_estacao = 11;
+  string frequencias_operacao = 12;
+  string uf_estacao = 13;
+  string municipio_estacao = 14;
+  // Excluídas do payload final por não terem utilidade na consulta.
+  // string data_primeiro_licenciamento = 15;
+  // string data_ultimo_licenciamento = 16;
+  // string data_validade_estacao = 17;
+  string status_validade = 18;
 }

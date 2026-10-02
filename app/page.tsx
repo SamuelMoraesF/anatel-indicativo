@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import protobuf from 'protobufjs';
 
-type RecordRow = [string, string, string, string, string, string];
+type RecordRow = string[];
 type VersionState = { current: string; available: string | null };
 const Indicativos = protobuf.Root.fromJSON({
   nested: {
@@ -15,6 +15,15 @@ const Indicativos = protobuf.Root.fromJSON({
         fistel: { type: 'string', id: 4 },
         servico: { type: 'string', id: 5 },
         indicativo: { type: 'string', id: 6 },
+        coer: { type: 'string', id: 7 },
+        ufEntidade: { type: 'string', id: 8 },
+        numeroEstacao: { type: 'string', id: 9 },
+        nomeEstacao: { type: 'string', id: 10 },
+        tipoEstacao: { type: 'string', id: 11 },
+        frequenciasOperacao: { type: 'string', id: 12 },
+        ufEstacao: { type: 'string', id: 13 },
+        municipioEstacao: { type: 'string', id: 14 },
+        statusValidade: { type: 'string', id: 18 },
       },
     },
   },
@@ -60,6 +69,15 @@ export default function Home() {
             row.fistel,
             row.servico,
             row.indicativo,
+            row.coer,
+            row.ufEntidade,
+            row.numeroEstacao,
+            row.nomeEstacao,
+            row.tipoEstacao,
+            row.frequenciasOperacao,
+            row.ufEstacao,
+            row.municipioEstacao,
+            row.statusValidade,
           ]),
         );
       })
@@ -145,6 +163,13 @@ export default function Home() {
                     <span>
                       {row[4]} · {row[0]}
                     </span>
+                    <div className="stationInfo">
+                      <span>{row[10] || 'N/I'}</span>
+                      <span>COER: {row[6] || 'N/I'}</span>
+                      <span>
+                        {row[13] || 'N/I'} - {row[12] || 'N/I'}
+                      </span>
+                    </div>
                   </div>
                   <div className="id">{row[1]}</div>
                 </article>

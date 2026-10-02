@@ -27,6 +27,15 @@
 .radioName {
   text-transform: uppercase;
 }
+.stationInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  color: #647188;
+  font:
+    11px 'DM Mono',
+    monospace;
+}
 .updateNotice:hover {
   background: #173337;
 }

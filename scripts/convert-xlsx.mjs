@@ -23,6 +23,15 @@ const records = rows
     fistel: String(row[3] ?? ''),
     servico: String(row[4] ?? ''),
     indicativo: String(row[5] ?? ''),
+    coer: String(row[6] ?? ''),
+    ufEntidade: String(row[7] ?? ''),
+    numeroEstacao: String(row[8] ?? ''),
+    nomeEstacao: String(row[9] ?? ''),
+    tipoEstacao: String(row[10] ?? ''),
+    frequenciasOperacao: String(row[11] ?? ''),
+    ufEstacao: String(row[12] ?? ''),
+    municipioEstacao: String(row[13] ?? ''),
+    statusValidade: String(row[17] ?? ''),
   }));
 const binary = Indicativos.encode(Indicativos.create({ records })).finish();
 const compressed = zlib.gzipSync(binary, { level: 9 });
