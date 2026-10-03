@@ -2,7 +2,23 @@
 import { useEffect, useMemo, useState } from 'react';
 import protobuf from 'protobufjs';
 
-type RecordRow = string[];
+type RecordRow = {
+  tipoIdentificacao?: string;
+  cnpjOuCpf?: string;
+  nomeEntidade?: string;
+  fistel?: string;
+  servico?: string;
+  indicativo?: string;
+  coer?: string;
+  ufEntidade?: string;
+  numeroEstacao?: string;
+  nomeEstacao?: string;
+  tipoEstacao?: string;
+  frequenciasOperacao?: string;
+  ufEstacao?: string;
+  municipioEstacao?: string;
+  statusValidade?: string;
+};
 type VersionState = { current: string; available: string | null };
 const Indicativos = protobuf.Root.fromJSON({
   nested: {
@@ -59,27 +75,9 @@ export default function Home() {
       })
       .then((buffer) => {
         const decoded = Indicativos.decode(new Uint8Array(buffer)) as protobuf.Message & {
-          records: Array<Record<string, string>>;
+          records: RecordRow[];
         };
-        setRecords(
-          decoded.records.map((row) => [
-            row.tipoIdentificacao,
-            row.cnpjOuCpf,
-            row.nomeEntidade,
-            row.fistel,
-            row.servico,
-            row.indicativo,
-            row.coer,
-            row.ufEntidade,
-            row.numeroEstacao,
-            row.nomeEstacao,
-            row.tipoEstacao,
-            row.frequenciasOperacao,
-            row.ufEstacao,
-            row.municipioEstacao,
-            row.statusValidade,
-          ]),
-        );
+        setRecords(decoded.records);
       })
       .finally(() => setLoading(false));
     return () => window.clearInterval(timer);
@@ -87,11 +85,11 @@ export default function Home() {
   const results = useMemo(() => {
     const q = query.trim().toLocaleUpperCase();
     if (!q) return [];
-    const exactMatches = records.filter((row) => row[5]?.toLocaleUpperCase() === q);
+    const exactMatches = records.filter((row) => row.indicativo?.toLocaleUpperCase() === q);
     if (exactMatches.length) return exactMatches;
     return records
-      .filter((row) => row[5]?.toLocaleUpperCase().startsWith(q))
-      .sort((a, b) => a[5].localeCompare(b[5], 'pt-BR'))
+      .filter((row) => row.indicativo?.toLocaleUpperCase().startsWith(q))
+      .sort((a, b) => (a.indicativo ?? '').localeCompare(b.indicativo ?? '', 'pt-BR'))
       .slice(0, 80);
   }, [query, records]);
   return (
@@ -152,29 +150,26 @@ export default function Home() {
             </div>
             {results.length ? (
               results.map((row, i) => (
-                <article className="card" key={`${row[5]}-${i}`}>
-                  <div className="call">{row[5]}</div>
+                <article className="card" key={`${row.indicativo}-${i}`}>
+                  <div className="call">{row.indicativo}</div>
                   <div className="details">
                     <div className="nameLine">
-                      <strong className="radioName">{row[2]}</strong>
-                      {row[6] && (
-                        <span className={`classBadge class${row[6].replace('Classe ', '')}`}>
-                          {row[6]}
+                      <strong className="radioName">{row.nomeEntidade}</strong>
+                      {row.coer && (
+                        <span className={`classBadge class${row.coer.replace('Classe ', '')}`}>
+                          {row.coer}
                         </span>
                       )}
                     </div>
-                    <span>
-                      {row[4]} · {row[0]}
-                    </span>
                     <div className="stationInfo">
-                      <span>{row[10] || 'N/I'}</span>
-                      <span>COER: {row[6] || 'N/I'}</span>
-                      <span>
-                        {row[13] || 'N/I'} - {row[12] || 'N/I'}
-                      </span>
+                      {(row.municipioEstacao || row.ufEstacao) && (
+                        <span>
+                          {[row.municipioEstacao, row.ufEstacao].filter(Boolean).join(' · ')}
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div className="id">{row[1]}</div>
+                  <div className="id">{row.tipoEstacao || 'N/I'}</div>
                 </article>
               ))
             ) : (
