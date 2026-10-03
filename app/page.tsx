@@ -86,11 +86,11 @@ export default function Home() {
     const q = query.trim().toLocaleUpperCase();
     if (!q) return [];
     const exactMatches = records.filter((row) => row.indicativo?.toLocaleUpperCase() === q);
-    if (exactMatches.length) return exactMatches;
+    if (exactMatches.length) return exactMatches.slice(0, 10);
     return records
       .filter((row) => row.indicativo?.toLocaleUpperCase().startsWith(q))
       .sort((a, b) => (a.indicativo ?? '').localeCompare(b.indicativo ?? '', 'pt-BR'))
-      .slice(0, 80);
+      .slice(0, 10);
   }, [query, records]);
   return (
     <main>
@@ -145,7 +145,7 @@ export default function Home() {
               <span>RESULTADOS</span>
               <small>
                 {results.length}
-                {results.length === 80 ? '+' : ''} encontrados
+                encontrados
               </small>
             </div>
             {results.length ? (
