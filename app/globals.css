@@ -252,6 +252,13 @@ footer,
   align-items: center;
   padding: 22px 4px;
   border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+.card:hover,
+.card:focus-visible {
+  background: rgba(255, 255, 255, 0.035);
+  outline: none;
 }
 .call {
   font: 600 23px 'DM Mono';
@@ -293,6 +300,66 @@ footer,
   color: var(--cyan);
   font-size: 20px;
 }
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(4, 8, 14, 0.78);
+  backdrop-filter: blur(8px);
+}
+.recordModal {
+  position: relative;
+  width: min(620px, 100%);
+  max-height: min(82vh, 760px);
+  overflow-y: auto;
+  padding: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #101722;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.5);
+}
+.recordModal h2 {
+  margin: 0 0 25px;
+  color: var(--cyan);
+  font: 600 28px 'DM Mono';
+}
+.modalClose {
+  position: absolute;
+  top: 15px;
+  right: 17px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 27px;
+}
+.recordFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+  margin: 0;
+}
+.recordField {
+  min-width: 0;
+  padding: 13px 0;
+  border-top: 1px solid var(--line);
+}
+.recordField dt {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font: 10px 'DM Mono';
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.recordField dd {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
 footer {
   margin-top: 120px;
   padding-top: 18px;
@@ -319,6 +386,12 @@ footer {
   .card {
     grid-template-columns: 1fr;
     gap: 9px;
+  }
+  .recordModal {
+    padding: 28px 22px;
+  }
+  .recordFields {
+    grid-template-columns: 1fr;
   }
   .id {
     text-align: left;

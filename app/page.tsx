@@ -48,6 +48,7 @@ const Indicativos = protobuf.Root.fromJSON({
 export default function Home() {
   const [records, setRecords] = useState<RecordRow[]>([]);
   const [query, setQuery] = useState('');
+  const [selectedRecord, setSelectedRecord] = useState<RecordRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [version, setVersion] = useState<VersionState>({ current: '', available: null });
   useEffect(() => {
@@ -92,6 +93,36 @@ export default function Home() {
       .sort((a, b) => (a.indicativo ?? '').localeCompare(b.indicativo ?? '', 'pt-BR'))
       .slice(0, 10);
   }, [query, records]);
+  useEffect(() => {
+    if (!selectedRecord) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedRecord(null);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [selectedRecord]);
+  const selectedFields: [string, string][] = selectedRecord
+    ? ([
+        ['Indicativo', selectedRecord.indicativo],
+        ['Tipo de identificação', selectedRecord.tipoIdentificacao],
+        ['CNPJ ou CPF', selectedRecord.cnpjOuCpf],
+        ['Nome da entidade', selectedRecord.nomeEntidade],
+        ['Fistel', selectedRecord.fistel],
+        ['Serviço', selectedRecord.servico],
+        ['Classe COER', selectedRecord.coer],
+        ['UF da entidade', selectedRecord.ufEntidade],
+        ['Número da estação', selectedRecord.numeroEstacao],
+        ['Nome da estação', selectedRecord.nomeEstacao],
+        ['Tipo da estação', selectedRecord.tipoEstacao],
+        ['Frequências de operação', selectedRecord.frequenciasOperacao],
+        ['UF da estação', selectedRecord.ufEstacao],
+        ['Município da estação', selectedRecord.municipioEstacao],
+        ['Status de validade', selectedRecord.statusValidade],
+      ] as [string, string | undefined][]).filter((field) => Boolean(field[1]?.trim())) as [
+        string,
+        string,
+      ][]
+    : [];
   return (
     <main>
       {version.available && (
@@ -150,7 +181,19 @@ export default function Home() {
             </div>
             {results.length ? (
               results.map((row, i) => (
-                <article className="card" key={`${row.indicativo}-${i}`}>
+                <article
+                  className="card"
+                  key={`${row.indicativo}-${i}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedRecord(row)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      setSelectedRecord(row);
+                    }
+                  }}
+                >
                   <div className="call">{row.indicativo}</div>
                   <div className="details">
                     <div className="nameLine">
@@ -190,6 +233,36 @@ export default function Home() {
           <span>CLIENT-SIDE / OFFLINE READY</span>
         </footer>
       </section>
+      {selectedRecord && (
+        <div className="modalBackdrop" onClick={() => setSelectedRecord(null)}>
+          <section
+            className="recordModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="recordModalTitle"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="modalClose"
+              type="button"
+              aria-label="Fechar detalhes"
+              onClick={() => setSelectedRecord(null)}
+            >
+              ×
+            </button>
+            <p className="eyebrow">DETALHES DO REGISTRO</p>
+            <h2 id="recordModalTitle">{selectedRecord.indicativo || 'Estação'}</h2>
+            <dl className="recordFields">
+              {selectedFields.map(([label, value]) => (
+                <div className="recordField" key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        </div>
+      )}
     </main>
   );
 }
