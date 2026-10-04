@@ -31,20 +31,32 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(VERSION_URL, response.clone()));
+          if (response.ok)
+            caches.open(CACHE_NAME).then((cache) => cache.put(VERSION_URL, response.clone()));
           return response;
         })
-        .catch(() => caches.match(VERSION_URL).then((cached) => cached || new Response('Offline', { status: 503 }))),
+        .catch(() =>
+          caches
+            .match(VERSION_URL)
+            .then((cached) => cached || new Response('Offline', { status: 503 })),
+        ),
     );
     return;
   }
 
   if (url.pathname === DATA_URL) {
     event.respondWith(
-      caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
-        if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
-        return response;
-      }).catch(() => new Response('Offline', { status: 503 }))),
+      caches.match(event.request).then(
+        (cached) =>
+          cached ||
+          fetch(event.request)
+            .then((response) => {
+              if (response.ok)
+                caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
+              return response;
+            })
+            .catch(() => new Response('Offline', { status: 503 })),
+      ),
     );
     return;
   }
@@ -53,10 +65,13 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put('/', response.clone()));
+          if (response.ok)
+            caches.open(CACHE_NAME).then((cache) => cache.put('/', response.clone()));
           return response;
         })
-        .catch(() => caches.match('/').then((cached) => cached || new Response('Offline', { status: 503 }))),
+        .catch(() =>
+          caches.match('/').then((cached) => cached || new Response('Offline', { status: 503 })),
+        ),
     );
   }
 });

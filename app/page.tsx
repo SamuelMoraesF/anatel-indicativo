@@ -115,29 +115,28 @@ export default function Home() {
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [selectedRecord]);
   const selectedFields: [string, string][] = selectedRecord
-    ? ([
-        ['Indicativo', selectedRecord.indicativo],
-        ['Tipo de identificação', selectedRecord.tipoIdentificacao],
-        ['CNPJ ou CPF', selectedRecord.cnpjOuCpf],
-        ['Nome da entidade', selectedRecord.nomeEntidade],
-        ['Fistel', selectedRecord.fistel],
-        ['Serviço', selectedRecord.servico],
-        ['Classe COER', selectedRecord.coer],
-        ['UF da entidade', selectedRecord.ufEntidade],
-        ['Número da estação', selectedRecord.numeroEstacao],
-        ['Nome da estação', selectedRecord.nomeEstacao],
-        ['Tipo da estação', selectedRecord.tipoEstacao],
-        ['Frequências de operação', selectedRecord.frequenciasOperacao],
-        ['UF da estação', selectedRecord.ufEstacao],
-        ['Município da estação', selectedRecord.municipioEstacao],
-        ['Data do primeiro licenciamento', selectedRecord.dataPrimeiroLicenciamento],
-        ['Data do último licenciamento', selectedRecord.dataUltimoLicenciamento],
-        ['Data de validade da estação', selectedRecord.dataValidadeEstacao],
-        ['Status de validade', selectedRecord.statusValidade],
-      ] as [string, string | undefined][]).filter((field) => Boolean(field[1]?.trim())) as [
-        string,
-        string,
-      ][]
+    ? ((
+        [
+          ['Indicativo', selectedRecord.indicativo],
+          ['Tipo de identificação', selectedRecord.tipoIdentificacao],
+          ['CNPJ ou CPF', selectedRecord.cnpjOuCpf],
+          ['Nome da entidade', selectedRecord.nomeEntidade],
+          ['Fistel', selectedRecord.fistel],
+          ['Serviço', selectedRecord.servico],
+          ['Classe COER', selectedRecord.coer],
+          ['UF da entidade', selectedRecord.ufEntidade],
+          ['Número da estação', selectedRecord.numeroEstacao],
+          ['Nome da estação', selectedRecord.nomeEstacao],
+          ['Tipo da estação', selectedRecord.tipoEstacao],
+          ['Frequências de operação', selectedRecord.frequenciasOperacao],
+          ['UF da estação', selectedRecord.ufEstacao],
+          ['Município da estação', selectedRecord.municipioEstacao],
+          ['Data do primeiro licenciamento', selectedRecord.dataPrimeiroLicenciamento],
+          ['Data do último licenciamento', selectedRecord.dataUltimoLicenciamento],
+          ['Data de validade da estação', selectedRecord.dataValidadeEstacao],
+          ['Status de validade', selectedRecord.statusValidade],
+        ] as [string, string | undefined][]
+      ).filter((field) => Boolean(field[1]?.trim())) as [string, string][])
     : [];
   return (
     <main>

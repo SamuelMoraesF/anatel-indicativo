@@ -3,3 +3,5 @@ node_modules
 public/data/indicativos.json.gz
 indicativos.xlsx
 package-lock.json
+
+public/version.json
