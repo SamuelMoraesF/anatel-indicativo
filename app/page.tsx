@@ -98,13 +98,18 @@ export default function Home() {
   }, []);
   const results = useMemo(() => {
     const q = query.trim().toLocaleUpperCase();
-    if (!q) return [];
+    if (q.length < 3) return { items: [], total: 0 };
     const exactMatches = records.filter((row) => row.indicativo?.toLocaleUpperCase() === q);
-    if (exactMatches.length) return exactMatches.slice(0, 10);
-    return records
-      .filter((row) => row.indicativo?.toLocaleUpperCase().startsWith(q))
-      .sort((a, b) => (a.indicativo ?? '').localeCompare(b.indicativo ?? '', 'pt-BR'))
-      .slice(0, 10);
+    const matches = exactMatches.length
+      ? exactMatches
+      : records.filter((row) => row.indicativo?.toLocaleUpperCase().startsWith(q));
+    const sortedMatches = exactMatches.length
+      ? matches
+      : matches.sort((a, b) => (a.indicativo ?? '').localeCompare(b.indicativo ?? '', 'pt-BR'));
+    return {
+      items: sortedMatches.slice(0, 10),
+      total: matches.length,
+    };
   }, [query, records]);
   useEffect(() => {
     if (!selectedRecord) return;
@@ -184,20 +189,25 @@ export default function Home() {
             {loading
               ? 'Carregando base...'
               : `${records.length.toLocaleString('pt-BR')} registros disponíveis`}
-            <span className="hint">Busca em tempo real</span>
+            <span className="hint">Busca a partir de 3 caracteres</span>
           </div>
         </div>
-        {query && (
+        {query.length > 0 && query.length < 3 && (
+          <div className="welcome">
+            <span>↳</span>
+            <p>Digite pelo menos 3 caracteres para buscar.</p>
+          </div>
+        )}
+        {query.length >= 3 && (
           <div className="results">
             <div className="resultHead">
               <span>RESULTADOS</span>
               <small>
-                {results.length}
-                encontrados
+                {results.total} {results.total === 1 ? 'encontrado' : 'encontrados'}
               </small>
             </div>
-            {results.length ? (
-              results.map((row, i) => (
+            {results.items.length ? (
+              results.items.map((row, i) => (
                 <article
                   className="card"
                   key={`${row.indicativo}-${i}`}
