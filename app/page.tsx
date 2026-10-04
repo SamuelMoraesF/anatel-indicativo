@@ -17,6 +17,9 @@ type RecordRow = {
   frequenciasOperacao?: string;
   ufEstacao?: string;
   municipioEstacao?: string;
+  dataPrimeiroLicenciamento?: string;
+  dataUltimoLicenciamento?: string;
+  dataValidadeEstacao?: string;
   statusValidade?: string;
 };
 type VersionState = { current: string; available: string | null };
@@ -39,6 +42,9 @@ const Indicativos = protobuf.Root.fromJSON({
         frequenciasOperacao: { type: 'string', id: 12 },
         ufEstacao: { type: 'string', id: 13 },
         municipioEstacao: { type: 'string', id: 14 },
+        dataPrimeiroLicenciamento: { type: 'string', id: 15 },
+        dataUltimoLicenciamento: { type: 'string', id: 16 },
+        dataValidadeEstacao: { type: 'string', id: 17 },
         statusValidade: { type: 'string', id: 18 },
       },
     },
@@ -55,9 +61,13 @@ export default function Home() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
     }
-    fetch('/version.json', { cache: 'no-store' })
+    const versionRequest = fetch('/version.json', { cache: 'no-store' })
       .then((response) => response.json())
-      .then(({ version: current }) => setVersion({ current, available: null }));
+      .then(({ version: current }) => {
+        setVersion({ current, available: null });
+        return current as string;
+      })
+      .catch(() => '');
     const timer = window.setInterval(() => {
       fetch('/version.json', { cache: 'no-store' })
         .then((response) => response.json())
@@ -69,7 +79,10 @@ export default function Home() {
         )
         .catch(() => undefined);
     }, 60_000);
-    fetch('/data/indicativos.pb.gz')
+    versionRequest
+      .then((current) =>
+        fetch(`/data/indicativos.pb.gz${current ? `?v=${encodeURIComponent(current)}` : ''}`),
+      )
       .then(async (r) => {
         const stream = r.body?.pipeThrough(new DecompressionStream('gzip'));
         return new Response(stream ?? r.body).arrayBuffer();
@@ -117,6 +130,9 @@ export default function Home() {
         ['Frequências de operação', selectedRecord.frequenciasOperacao],
         ['UF da estação', selectedRecord.ufEstacao],
         ['Município da estação', selectedRecord.municipioEstacao],
+        ['Data do primeiro licenciamento', selectedRecord.dataPrimeiroLicenciamento],
+        ['Data do último licenciamento', selectedRecord.dataUltimoLicenciamento],
+        ['Data de validade da estação', selectedRecord.dataValidadeEstacao],
         ['Status de validade', selectedRecord.statusValidade],
       ] as [string, string | undefined][]).filter((field) => Boolean(field[1]?.trim())) as [
         string,

@@ -42,6 +42,9 @@ const records = rows
     frequenciasOperacao: normalize(row[11]),
     ufEstacao: normalizeUf(row[12]),
     municipioEstacao: normalize(row[13]),
+    dataPrimeiroLicenciamento: normalize(row[14]),
+    dataUltimoLicenciamento: normalize(row[15]),
+    dataValidadeEstacao: normalize(row[16]),
     statusValidade: normalize(row[17]),
   }));
 const binary = Indicativos.encode(Indicativos.create({ records })).finish();

@@ -19,9 +19,8 @@ message Registro {
   string frequencias_operacao = 12;
   string uf_estacao = 13;
   string municipio_estacao = 14;
-  // Excluídas do payload final por não terem utilidade na consulta.
-  // string data_primeiro_licenciamento = 15;
-  // string data_ultimo_licenciamento = 16;
-  // string data_validade_estacao = 17;
+  string data_primeiro_licenciamento = 15;
+  string data_ultimo_licenciamento = 16;
+  string data_validade_estacao = 17;
   string status_validade = 18;
 }
