@@ -173,7 +173,9 @@ export default function Home() {
             <input
               autoFocus
               value={query}
-              onChange={(e) => setQuery(e.target.value.toLocaleUpperCase())}
+              onChange={(e) =>
+                setQuery(e.target.value.toLocaleUpperCase().replace(/[^A-Z0-9]/g, ''))
+              }
               placeholder="Digite o indicativo..."
             />
             <kbd>⌘ K</kbd>
