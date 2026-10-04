@@ -102,7 +102,7 @@ export default function Home() {
     const exactMatches = records.filter((row) => row.indicativo?.toLocaleUpperCase() === q);
     const matches = exactMatches.length
       ? exactMatches
-      : records.filter((row) => row.indicativo?.toLocaleUpperCase().startsWith(q));
+      : records.filter((row) => row.indicativo?.toLocaleUpperCase().includes(q));
     const sortedMatches = exactMatches.length
       ? matches
       : matches.sort((a, b) => (a.indicativo ?? '').localeCompare(b.indicativo ?? '', 'pt-BR'));
