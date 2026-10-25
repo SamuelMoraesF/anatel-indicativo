@@ -17,6 +17,63 @@ const log = (message) => console.log(`[update] ${new Date().toISOString()} ${mes
 const md5 = (filePath) => crypto.createHash('md5').update(fs.readFileSync(filePath)).digest('hex');
 const formatBytes = (bytes) => `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 
+const readLines = (filePath) =>
+  fs
+    .readFileSync(filePath, 'utf8')
+    .split(/\r\n|\n|\r/)
+    .filter((line, index, lines) => index < lines.length - 1 || line !== '');
+
+const stationNumber = (line) => line.split(';', 7)[6]?.trim();
+
+const mergeCsv = (currentPath, downloadedPath) => {
+  const currentText = fs.readFileSync(currentPath, 'utf8');
+  const current = readLines(currentPath);
+  const downloaded = readLines(downloadedPath);
+  const [currentHeader, ...currentRows] = current;
+  const [downloadedHeader, ...downloadedRows] = downloaded;
+
+  if (!currentHeader || !downloadedHeader) throw new Error('CSV vazio ou sem cabeçalho.');
+
+  const downloadedByStation = new Map();
+  for (const row of downloadedRows.filter((line) => line.trim())) {
+    const key = stationNumber(row);
+    if (!key) throw new Error(`CSV baixado contém linha sem Número da Estação: ${row}`);
+    if (downloadedByStation.has(key)) {
+      throw new Error(`Número da Estação duplicado no CSV baixado: ${key}`);
+    }
+    downloadedByStation.set(key, row);
+  }
+
+  const currentKeys = new Set();
+  const mergedRows = [];
+  for (const row of currentRows.filter((line) => line.trim())) {
+    const key = stationNumber(row);
+    if (!key) throw new Error(`CSV versionado contém linha sem Número da Estação: ${row}`);
+    if (currentKeys.has(key))
+      throw new Error(`Número da Estação duplicado no CSV versionado: ${key}`);
+    currentKeys.add(key);
+
+    const downloadedRow = downloadedByStation.get(key);
+    if (downloadedRow) {
+      // Ignora somente espaços acidentais no fim da linha, preservando a linha
+      // versionada quando os dados efetivos não mudaram.
+      mergedRows.push(row.trimEnd() === downloadedRow.trimEnd() ? row : downloadedRow);
+      downloadedByStation.delete(key);
+    }
+  }
+
+  // Registros novos ficam ordenados pela chave, tornando a primeira inclusão
+  // estável mesmo que a Anatel os entregue em ordem diferente.
+  mergedRows.push(
+    ...[...downloadedByStation.entries()]
+      .sort(([left], [right]) => left.localeCompare(right, 'en'))
+      .map(([, row]) => row),
+  );
+
+  const lineEnding = currentText.includes('\r\n') ? '\r\n' : '\n';
+  return `${currentHeader}${lineEnding}${mergedRows.join(lineEnding)}${lineEnding}`;
+};
+
 const cleanup = () => {
   fs.rmSync(tempDir, { recursive: true, force: true });
   log(`Temporários removidos: ${tempDir}`);
@@ -78,9 +135,15 @@ try {
   log(`CSV extraído: ${formatBytes(csvBuffer.length)}; md5=${md5(extractedPath)}`);
 
   const oldMd5 = fs.existsSync(sourcePath) ? md5(sourcePath) : null;
-  const newMd5 = md5(extractedPath);
+  const mergedPath = path.join(tempDir, 'Estacoes_Radioamador.merged.csv');
+  if (fs.existsSync(sourcePath)) {
+    fs.writeFileSync(mergedPath, mergeCsv(sourcePath, extractedPath));
+  } else {
+    fs.copyFileSync(extractedPath, mergedPath);
+  }
+  const newMd5 = md5(mergedPath);
   log(`MD5 versionado: ${oldMd5 ?? '(não existe)'}`);
-  log(`MD5 baixado:    ${newMd5}`);
+  log(`MD5 reconciliado: ${newMd5}`);
 
   if (oldMd5 === newMd5) {
     log('Nenhuma alteração detectada; conversão e escrita ignoradas.');
@@ -92,7 +155,7 @@ try {
         ? 'Alteração detectada; substituindo CSV versionado.'
         : 'CSV ainda não versionado; criando arquivo.',
     );
-    fs.copyFileSync(extractedPath, sourcePath);
+    fs.copyFileSync(mergedPath, sourcePath);
     log(`CSV salvo: ${formatBytes(fs.statSync(sourcePath).size)}; md5=${md5(sourcePath)}`);
 
     log('Importando CSV e regenerando Protobuf...');
