@@ -326,6 +326,27 @@ footer,
   color: var(--cyan);
   font: 600 28px 'DM Mono';
 }
+.recordSectionTitle {
+  margin: 28px 0 10px;
+  color: var(--cyan);
+  font:
+    500 11px 'DM Mono',
+    monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.stationSection {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.stationSection h4 {
+  margin: 0 0 4px;
+  color: var(--text);
+  font:
+    500 13px 'DM Mono',
+    monospace;
+}
 .modalClose {
   position: absolute;
   top: 15px;

@@ -22,7 +22,40 @@ type RecordRow = {
   dataValidadeEstacao?: string;
   statusValidade?: string;
 };
+type FieldKey = keyof RecordRow;
+type IndicativoGroup = {
+  indicativo: string;
+  records: RecordRow[];
+  latestRecord: RecordRow;
+  coer?: string;
+  municipalities: string[];
+  stationTypes: string[];
+};
 type VersionState = { current: string; available: string | null };
+const joinPortuguese = (values: string[]) => {
+  if (values.length < 2) return values[0] ?? '';
+  return `${values.slice(0, -1).join(', ')} e ${values[values.length - 1]}`;
+};
+const fieldDefinitions: [FieldKey, string][] = [
+  ['indicativo', 'Indicativo'],
+  ['tipoIdentificacao', 'Tipo de identificação'],
+  ['cnpjOuCpf', 'CNPJ ou CPF'],
+  ['nomeEntidade', 'Nome da entidade'],
+  ['fistel', 'Fistel'],
+  ['servico', 'Serviço'],
+  ['coer', 'Classe COER'],
+  ['ufEntidade', 'UF da entidade'],
+  ['numeroEstacao', 'Número da estação'],
+  ['nomeEstacao', 'Nome da estação'],
+  ['tipoEstacao', 'Tipo da estação'],
+  ['frequenciasOperacao', 'Frequências de operação'],
+  ['ufEstacao', 'UF da estação'],
+  ['municipioEstacao', 'Município da estação'],
+  ['dataPrimeiroLicenciamento', 'Data do primeiro licenciamento'],
+  ['dataUltimoLicenciamento', 'Data do último licenciamento'],
+  ['dataValidadeEstacao', 'Data de validade da estação'],
+  ['statusValidade', 'Status de validade'],
+];
 const Indicativos = protobuf.Root.fromJSON({
   nested: {
     Indicativos: { fields: { records: { rule: 'repeated', type: 'Registro', id: 1 } } },
@@ -54,7 +87,7 @@ const Indicativos = protobuf.Root.fromJSON({
 export default function Home() {
   const [records, setRecords] = useState<RecordRow[]>([]);
   const [query, setQuery] = useState('');
-  const [selectedRecord, setSelectedRecord] = useState<RecordRow | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<IndicativoGroup | null>(null);
   const [loading, setLoading] = useState(true);
   const [version, setVersion] = useState<VersionState>({ current: '', available: null });
   useEffect(() => {
@@ -96,53 +129,98 @@ export default function Home() {
       .finally(() => setLoading(false));
     return () => window.clearInterval(timer);
   }, []);
+  const groups = useMemo<IndicativoGroup[]>(() => {
+    const grouped = new Map<string, RecordRow[]>();
+    for (const record of records) {
+      const indicativo = record.indicativo?.trim();
+      if (!indicativo) continue;
+      grouped.set(indicativo, [...(grouped.get(indicativo) ?? []), record]);
+    }
+
+    const parseDate = (value?: string) => {
+      const match = value?.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      return match ? Date.UTC(Number(match[3]), Number(match[2]) - 1, Number(match[1])) : 0;
+    };
+    const classRank = (value?: string) => {
+      const normalized = value?.toLocaleUpperCase('pt-BR') ?? '';
+      return normalized === 'CLASSE A'
+        ? 3
+        : normalized === 'CLASSE B'
+          ? 2
+          : normalized === 'CLASSE C'
+            ? 1
+            : 0;
+    };
+    const unique = (values: (string | undefined)[]) =>
+      Array.from(new Set(values.map((value) => value?.trim()).filter(Boolean) as string[]));
+    const joinLocation = (record: RecordRow) =>
+      [record.municipioEstacao, record.ufEstacao].filter(Boolean).join(' - ');
+
+    return Array.from(grouped.entries()).map(
+      ([indicativo, groupRecords]: [string, RecordRow[]]) => {
+        const latestRecord = [...groupRecords].sort(
+          (left, right) =>
+            parseDate(right.dataUltimoLicenciamento) - parseDate(left.dataUltimoLicenciamento),
+        )[0];
+        const classes = groupRecords
+          .filter((record) => classRank(record.coer) > 0)
+          .sort((left, right) => classRank(right.coer) - classRank(left.coer));
+        return {
+          indicativo,
+          records: groupRecords,
+          latestRecord,
+          coer: classes[0]?.coer,
+          municipalities: unique(groupRecords.map(joinLocation)),
+          stationTypes: unique(groupRecords.map((record) => record.tipoEstacao)),
+        };
+      },
+    );
+  }, [records]);
   const results = useMemo(() => {
     const q = query.trim().toLocaleUpperCase();
     if (q.length < 3) return { items: [], total: 0 };
-    const exactMatches = records.filter((row) => row.indicativo?.toLocaleUpperCase() === q);
+    const exactMatches = groups.filter((group) => group.indicativo.toLocaleUpperCase() === q);
     const matches = exactMatches.length
       ? exactMatches
-      : records.filter((row) => row.indicativo?.toLocaleUpperCase().includes(q));
+      : groups.filter((group) => group.indicativo.toLocaleUpperCase().includes(q));
     const sortedMatches = exactMatches.length
       ? matches
-      : matches.sort((a, b) => (a.indicativo ?? '').localeCompare(b.indicativo ?? '', 'pt-BR'));
+      : [...matches].sort((a, b) => a.indicativo.localeCompare(b.indicativo, 'pt-BR'));
     return {
       items: sortedMatches.slice(0, 10),
       total: matches.length,
     };
-  }, [query, records]);
+  }, [query, groups]);
   useEffect(() => {
-    if (!selectedRecord) return;
+    if (!selectedGroup) return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setSelectedRecord(null);
+      if (event.key === 'Escape') setSelectedGroup(null);
     };
     window.addEventListener('keydown', closeOnEscape);
     return () => window.removeEventListener('keydown', closeOnEscape);
-  }, [selectedRecord]);
-  const selectedFields: [string, string][] = selectedRecord
-    ? ((
-        [
-          ['Indicativo', selectedRecord.indicativo],
-          ['Tipo de identificação', selectedRecord.tipoIdentificacao],
-          ['CNPJ ou CPF', selectedRecord.cnpjOuCpf],
-          ['Nome da entidade', selectedRecord.nomeEntidade],
-          ['Fistel', selectedRecord.fistel],
-          ['Serviço', selectedRecord.servico],
-          ['Classe COER', selectedRecord.coer],
-          ['UF da entidade', selectedRecord.ufEntidade],
-          ['Número da estação', selectedRecord.numeroEstacao],
-          ['Nome da estação', selectedRecord.nomeEstacao],
-          ['Tipo da estação', selectedRecord.tipoEstacao],
-          ['Frequências de operação', selectedRecord.frequenciasOperacao],
-          ['UF da estação', selectedRecord.ufEstacao],
-          ['Município da estação', selectedRecord.municipioEstacao],
-          ['Data do primeiro licenciamento', selectedRecord.dataPrimeiroLicenciamento],
-          ['Data do último licenciamento', selectedRecord.dataUltimoLicenciamento],
-          ['Data de validade da estação', selectedRecord.dataValidadeEstacao],
-          ['Status de validade', selectedRecord.statusValidade],
-        ] as [string, string | undefined][]
-      ).filter((field) => Boolean(field[1]?.trim())) as [string, string][])
-    : [];
+  }, [selectedGroup]);
+  const selectedFieldState = useMemo(() => {
+    if (!selectedGroup) return { common: [], specific: [] };
+    const common = fieldDefinitions.filter(([key]) => {
+      const values = selectedGroup.records.map((record) => record[key]?.trim() ?? '');
+      return values.every((value) => value === values[0]);
+    });
+    const varying = fieldDefinitions.filter(
+      ([key]) => !common.some(([commonKey]) => commonKey === key),
+    );
+    return {
+      common: common.map(
+        ([key, label]) =>
+          [label, selectedGroup.records[0][key]?.trim() || 'N/I'] as [string, string],
+      ),
+      specific: selectedGroup.records.map((record) => ({
+        record,
+        fields: varying.map(
+          ([key, label]) => [label, record[key]?.trim() || 'N/I'] as [string, string],
+        ),
+      })),
+    };
+  }, [selectedGroup]);
   return (
     <main>
       {version.available && (
@@ -207,39 +285,39 @@ export default function Home() {
               </small>
             </div>
             {results.items.length ? (
-              results.items.map((row, i) => (
+              results.items.map((group) => (
                 <article
                   className="card"
-                  key={`${row.indicativo}-${i}`}
+                  key={group.indicativo}
                   role="button"
                   tabIndex={0}
-                  onClick={() => setSelectedRecord(row)}
+                  onClick={() => setSelectedGroup(group)}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
                       event.preventDefault();
-                      setSelectedRecord(row);
+                      setSelectedGroup(group);
                     }
                   }}
                 >
-                  <div className="call">{row.indicativo}</div>
+                  <div className="call">{group.indicativo}</div>
                   <div className="details">
                     <div className="nameLine">
-                      <strong className="radioName">{row.nomeEntidade}</strong>
-                      {row.coer && (
-                        <span className={`classBadge class${row.coer.replace('Classe ', '')}`}>
-                          {row.coer}
+                      <strong className="radioName">
+                        {group.latestRecord.nomeEntidade || group.latestRecord.nomeEstacao || 'N/I'}
+                      </strong>
+                      {group.coer && (
+                        <span className={`classBadge class${group.coer.replace('Classe ', '')}`}>
+                          {group.coer}
                         </span>
                       )}
                     </div>
                     <div className="stationInfo">
-                      {(row.municipioEstacao || row.ufEstacao) && (
-                        <span>
-                          {[row.municipioEstacao, row.ufEstacao].filter(Boolean).join(' · ')}
-                        </span>
+                      {group.municipalities.length > 0 && (
+                        <span>{group.municipalities.join(' / ')}</span>
                       )}
                     </div>
                   </div>
-                  <div className="id">{row.tipoEstacao || 'N/I'}</div>
+                  <div className="id">{joinPortuguese(group.stationTypes) || 'N/I'}</div>
                 </article>
               ))
             ) : (
@@ -260,8 +338,8 @@ export default function Home() {
           <span>CLIENT-SIDE / OFFLINE READY</span>
         </footer>
       </section>
-      {selectedRecord && (
-        <div className="modalBackdrop" onClick={() => setSelectedRecord(null)}>
+      {selectedGroup && (
+        <div className="modalBackdrop" onClick={() => setSelectedGroup(null)}>
           <section
             className="recordModal"
             role="dialog"
@@ -273,20 +351,42 @@ export default function Home() {
               className="modalClose"
               type="button"
               aria-label="Fechar detalhes"
-              onClick={() => setSelectedRecord(null)}
+              onClick={() => setSelectedGroup(null)}
             >
               ×
             </button>
             <p className="eyebrow">DETALHES DO REGISTRO</p>
-            <h2 id="recordModalTitle">{selectedRecord.indicativo || 'Estação'}</h2>
-            <dl className="recordFields">
-              {selectedFields.map(([label, value]) => (
-                <div className="recordField" key={label}>
-                  <dt>{label}</dt>
-                  <dd>{value}</dd>
-                </div>
-              ))}
-            </dl>
+            <h2 id="recordModalTitle">{selectedGroup.indicativo || 'Estação'}</h2>
+            {selectedFieldState.common.length > 0 && (
+              <>
+                <h3 className="recordSectionTitle">Dados comuns</h3>
+                <dl className="recordFields">
+                  {selectedFieldState.common.map(([label, value]) => (
+                    <div className="recordField" key={label}>
+                      <dt>{label}</dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </>
+            )}
+            <h3 className="recordSectionTitle">Estações</h3>
+            {selectedFieldState.specific.map(({ record, fields }, index) => (
+              <section className="stationSection" key={record.numeroEstacao || index}>
+                <h4>
+                  Estação {index + 1}
+                  {record.numeroEstacao ? ` · ${record.numeroEstacao}` : ''}
+                </h4>
+                <dl className="recordFields">
+                  {fields.map(([label, value]) => (
+                    <div className="recordField" key={label}>
+                      <dt>{label}</dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            ))}
           </section>
         </div>
       )}
