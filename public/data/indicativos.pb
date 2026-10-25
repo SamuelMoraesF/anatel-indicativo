@@ -131772,7 +131772,7 @@ Macaparanaz
 27/11/2025
 ú
 CPF
-***35743**NAZEM NACLI JUNIOR"50413621065*Radioamador2PY2WR:Classe ABSPJ
+***35743**Nazem Nacli Junior"50413621065*Radioamador2PR2TE:Classe ABSPJ
 1002616317REsta√ß√£o_000ZFixajSPrMacatubaz
 19/02/2016Ç
 15/02/2024
@@ -175641,10 +175641,10 @@ Joel Sangi"50411866265*Radioamador2PU1NJS:Classe CBRJJ
 1005060875REsta√ß√£o_001ZM√≥velz
 26/09/2017Ç44083ä
 26/09/2037íAtiva
-ü
+ú
 CPF
-***03146** Gustavo Henrique Franca da Silva"50449140105*Radioamador2PY2GHF:Classe BBSPJ
-1016090614REsta√ß√£o_001ZM√≥velz
+***03146** Gustavo Henrique Franca da Silva"50449140105*Radioamador2PR2GH:Classe BBSPJ
+1016090614RMOVEL_PR2GHZM√≥velz
 17/09/2024Ç
 15/08/2025
 ™
@@ -180223,10 +180223,11 @@ DELTA ALFAZM√≥velz
 CPF
 ***15284**RAQUEL COSTA CAVALCANTE"50011122307*Radioamador2PU7ARC:Classe CBALJ	623283158REsta√ß√£o_001ZM√≥velz36929Ç
 19/04/2011ä47886íAtiva
-è
+ã
 CPF
 ***66126**Matheus Mainieri Baptista"50456355146*Radioamador2PY8MAB:Classe BBPAJ
-1017933666RMOVEL DMR MATHZM√≥velz46091Ç46183
+1017933666R
+MOVEL MATHZM√≥velz46091Ç46183
 è
 CPF
 ***13003**Michel de Oliveira Ribeiro"50450634132*Radioamador2PU3MPL:Classe CBRSJ
@@ -185036,7 +185037,7 @@ LARY KLOCK"50407968032*Radioamador2PU5YKL:Classe CBPRJ	695362372REsta√ß√£o
 ***61333**Ruan Carlos Almeida Sposito"50409789100*Radioamador2PU6RCS:Classe CBBAJ	698052064REsta√ß√£o_001ZM√≥velz41223Ç41223ä48528íAtiva
 ê
 CPF
-***35743**NAZEM NACLI JUNIOR"50413621065*Radioamador2PY2WR:Classe ABSPJ
+***35743**Nazem Nacli Junior"50413621065*Radioamador2PR2TE:Classe ABSPJ
 1014946937REsta√ß√£o_001ZM√≥velz
 31/05/2023Ç
 15/02/2024
@@ -240529,12 +240530,6 @@ w
 29/10/2001Ç
 30/03/2011ä
 29/10/2031íAtiva
-™
-CPF
-***35123**DJAIR ALENCAR NASCIMENTO"50409155861*Radioamador2PY8HH:Classe BBPAJ	697121054REsta√ß√£o_001ZM√≥velz
-17/07/2012Ç
-17/07/2012ä
-17/07/2032íAtiva
 ç
 CPF
 ***76928**Jose Angelo Bento Junior"50448340682*Radioamador2PU2VMC:Classe CBSPJ
@@ -276011,7 +276006,7 @@ ARI FOGACA"50401291570*Radioamador2PU2MTL:Classe CBSPJ	684657589REsta√ß√£o
 25/11/2029íAtiva
 å
 CPF
-***84590**Bruno da Silva Reis"50447411837*Radioamador2PR2BN:Classe ABSPJ
+***84590**Bruno da Silva Reis"50447411837*Radioamador2PR2NN:Classe ABSPJ
 1015643156REsta√ß√£o_000ZM√≥velz46028Ç
 20/05/2025
 ó
@@ -380293,7 +380288,7 @@ Repetidorab145,450 / 144,850 MHzjSPrBotucatuz
 2032936658*Radioamador2PR2LB:Classe ABSPJ
 1017666102RMADAZTerrenajSPr
 S√£o Pauloz46302Ç46302ä
-18/07/2029íAtiva
+14/09/2029íAtiva
 æ
 CPF
 ***06118**Gabriel Santin"50455355444*Radioamador2PY3GBS:Classe BBRSJ
@@ -380328,3 +380323,9 @@ S√£o Pauloz
 1011752368REsta√ß√£o_000ZTerrenajPRrLondrinaz
 24/04/2026Ç
 19/02/2021
+£
+CPF
+***60003**Jose Wilton Simoes Lopes"50415864976*Radioamador2PT7WJ:Classe BBCEJ
+1017957921RESTA√á√ÉO_000ZFixajCEr	Fortalezaz
+23/10/2026Ç
+23/10/2026
