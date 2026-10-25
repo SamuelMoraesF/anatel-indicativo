@@ -203,7 +203,7 @@ export default function Home() {
     if (!selectedGroup) return { common: [], specific: [] };
     const common = fieldDefinitions.filter(([key]) => {
       const values = selectedGroup.records.map((record) => record[key]?.trim() ?? '');
-      return values.every((value) => value === values[0]);
+      return values[0] && values.every((value) => value === values[0]);
     });
     const varying = fieldDefinitions.filter(
       ([key]) => !common.some(([commonKey]) => commonKey === key),
@@ -211,13 +211,13 @@ export default function Home() {
     return {
       common: common.map(
         ([key, label]) =>
-          [label, selectedGroup.records[0][key]?.trim() || 'N/I'] as [string, string],
+          [label, selectedGroup.records[0][key]?.trim() as string] as [string, string],
       ),
       specific: selectedGroup.records.map((record) => ({
         record,
-        fields: varying.map(
-          ([key, label]) => [label, record[key]?.trim() || 'N/I'] as [string, string],
-        ),
+        fields: varying
+          .map(([key, label]) => [label, record[key]?.trim()] as [string, string | undefined])
+          .filter(([, value]) => value) as [string, string][],
       })),
     };
   }, [selectedGroup]);
