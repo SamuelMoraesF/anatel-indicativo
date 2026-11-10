@@ -22718,13 +22718,13 @@ Rio Grandez
 21/01/2009‚
 21/01/2009Š
 30/08/2028’Ativa
-ª
+¬
 CPF
 ***22570**GUENTHER PETERS"
 2000432778*Radioamador2PY2CCO:Classe ABSPJ	689897901REstaÃ§Ã£o_001ZFixajSPr
 SÃ£o Pauloz
 30/11/2007‚
-31/05/2016Š46245’Ativa
+31/05/2016Š46245’Vencida
 ¬
 CPF
 ***17577**CESAR SOUZA GOMES"50408512601*Radioamador2PU2OMI:Classe CBSPJ	696084163REstaÃ§Ã£o_000ZFixajSPrPresidente Prudentez41008‚41008Š48313’Ativa
