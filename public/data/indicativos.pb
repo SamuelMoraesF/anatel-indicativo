@@ -380296,7 +380296,7 @@ SÃ£o Pauloz46302‚46302Š
 15/06/2026‚
 15/06/2026Š
 14/08/2026’Vencida
-Î
+Ð
 CPF
 ***33349**Francisco Demouties da Cunha"
 2000197752*Radioamador2PR2FD:Classe ABSPJ
@@ -380304,7 +380304,7 @@ SÃ£o Pauloz46302‚46302Š
 SÃ£o Pauloz
 23/09/2026‚
 23/09/2026Š
-22/11/2026’Ativa
+22/11/2026’Vencida
 ®
 CPF
 ***96198**RODRIGO COELHO SALVATORI"50002501848*Radioamador2PR2RS:Classe BBSPJ
